@@ -49,3 +49,5 @@ python test_problems.py                  # reference solutions pass
 
 ## Datasets and tools
 No external datasets. Python standard library, FastAPI, Uvicorn.
+
+| 12 held-out bugs (not used for tuning) | 7/12 (58%) | Headline number; 5 misses analysed above |
