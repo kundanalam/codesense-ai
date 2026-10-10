@@ -78,6 +78,8 @@ def analyze_free(code, func=None, examples=None):
     except SyntaxError as e:
         d["status"] = "syntax_error"
         d["line"] = e.lineno
+        d["error_type"] = "indentation_error" if "indent" in str(e.msg) else "syntax_error"
+        d["confidence"] = 1.0
         d["explanation"] = "Python cannot read your code: " + str(e.msg)
         d["hints"] = _hints(d, False)
         return d
@@ -117,9 +119,17 @@ def analyze_free(code, func=None, examples=None):
         d["explanation"] = "Your code runs, but gives a wrong answer."
 
     matches = find_misconceptions(code)
+    if status == "no_error_found":
+        # The code ran fine and there is no example, so only report
+        # patterns that are almost never correct.
+        RELIABLE = {"comparison_instead_of_assignment",
+                    "missing_base_case",
+                    "modify_list_while_iterating"}
+        matches = [m for m in matches if m[0] in RELIABLE]
     if matches:
         d["error_type"], d["line"], d["explanation"] = matches[0]
         d["confidence"] = 0.7
-
+    if not d["error_type"]:
+        d["error_type"] = {"runtime_error": "runtime_error", "timeout": "infinite_loop"}.get(status)
     d["hints"] = _hints(d, has_example)
     return d
