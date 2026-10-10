@@ -1,3 +1,4 @@
+from backend.detect.safety import unsafe_reason, blocked_diagnosis
 from backend.problems import PROBLEMS
 from backend.detect.sandbox import run_student_code
 from backend.detect.ast_rules import find_misconceptions
@@ -6,6 +7,9 @@ from backend.detect.fuzz_shrink import find_minimal_failing_input
 
 def analyze(code, problem_id):
     """Run the student's code and return a diagnosis dict."""
+    why = unsafe_reason(code)
+    if why:
+        return blocked_diagnosis(why, problem_id)
     problem = PROBLEMS[problem_id]
     result = run_student_code(code, problem["func"], problem["tests"])
 

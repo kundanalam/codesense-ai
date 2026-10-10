@@ -1,3 +1,4 @@
+from backend.detect.safety import unsafe_reason, blocked_diagnosis
 import ast
 import re
 import subprocess
@@ -69,6 +70,9 @@ def _hints(d, has_example):
 
 
 def analyze_free(code, func=None, examples=None):
+    why = unsafe_reason(code)
+    if why:
+        return blocked_diagnosis(why)
     d = {"status": "no_error_found", "error_type": None, "line": None,
          "confidence": 0.0, "explanation": "", "minimal_failing_input": None,
          "expected_output": None, "actual_output": None, "hints": []}
